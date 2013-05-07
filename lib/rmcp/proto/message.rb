@@ -8,14 +8,18 @@ module RMCP
           header, body = packet[0...12].unpack(FORMAT), packet[12..-1]
           header, data = header[0...4], header[4..-1]
           unless data[4] == body.length
-            raise Error::ProtocolError.new("expected body length #{body.length} to equal #{data[4].inspect}")
+            warn Error::ProtocolError.new("expected body length #{body.length} to equal #{data[4].inspect}")
           end
 
-          allocate.tap do |m|
-            m.instance_variable_set(:@header, header)
-            m.instance_variable_set(:@data, data)
-            m.instance_variable_set(:@body, body)
-          end
+          m = Proto::TYPE[data[1]].is_a?(Class) ?  Proto::TYPE[data[1]].allocate : allocate
+          m.decode(header, data, body)
+          m
+        end
+
+        def type(code = nil)
+          return @type if code.nil?
+          TYPE[code] = self
+          @type = code
         end
       end
 
@@ -23,24 +27,64 @@ module RMCP
 
 
       def initialize(type, body = "")
-        @data   = [4542, 0x80, 0, 0] # defaults to a ping request
-        @header = []
-        self.type = type
+        @data   = [4542, self.class.type || 0x80, 0, 0] # defaults to a ping request
+        @header = [Proto::VERSION, 0, 0, 6]
+        self.type = type if type
         self.body = body
       end
 
-      def encode(tag)
+      def encode(tag, seq = nil)
         # TODO support ack messages: 7th bit of 4th element (class of message) should be 1
         # TODO determine IANA enterprise number from message type
-        [Proto::VERSION, 0, 0, 6, data[0], data[1], tag, data[3], data[4]].pack(FORMAT) + (@body)
+        sequence = seq if seq
+        self.tag = tag
+        (@header  + [data[0], data[1], data[2], data[3], data[4]]).pack(FORMAT) + (@body)
       end
 
+      # @api private
+      def decode(header, data, body)
+        @header = header
+        @data   = data
+        @body   = body
+      end
+
+      def sequence=(seq)
+        @header[2] = seq
+      end
+
+      def tag=(tag)
+        @data[2] = tag
+      end
+
+      def asf?
+        (@header[3] & 6) == 6
+      end
+
+      def ipmi?
+        (@header[3] & 7) == 7
+      end
+
+      def ipmi!
+        ((@header[3] >> 3) << 3) | 7
+        sequence = 0xff
+        self
+      end
+
+      def asf!
+        ((@header[3] >> 3) << 3) | 6
+        self
+      end
+
+      def ack?
+        (@header[3] & (2**7)) > 0
+      end
 
       def type
         Proto::TYPE[@data[1]]
       end
 
       def type=(sym)
+        return @data[1] = sym if sym.is_a?(Fixnum)
         raise ArgumentError.new("unrecognized type: #{sym.inspect}") unless (t = Proto::TYPE.index(sym))
         @data[1] = t
       end
@@ -79,3 +123,5 @@ module RMCP
 end # module::RMCP
 
 require "rmcp/proto/message/pong"
+require "rmcp/proto/message/ping"
+require "rmcp/proto/message/capabilities"
