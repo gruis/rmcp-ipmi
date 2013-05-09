@@ -1,3 +1,4 @@
+require "ipmi"
 module RMCP
 
 end # module::RMCP

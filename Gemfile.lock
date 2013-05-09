@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rmcp (0.0.0)
+    rmcp-ipmi (0.0.0)
       bindata
 
 GEM
@@ -35,5 +35,5 @@ DEPENDENCIES
   eventmachine
   pry
   rake
-  rmcp!
+  rmcp-ipmi!
   rspec

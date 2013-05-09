@@ -1,12 +1,12 @@
 require File.expand_path("../lib/rmcp/version", __FILE__)
 
 Gem::Specification.new do |s|
-  s.name          = "rmcp"
+  s.name          = "rmcp-ipmi"
   s.version       = RMCP::VERSION
-  s.summary       = 'Remote Management and Control Protocol (RMCP) Ruby implementation'
+  s.summary       = 'Remote Management and Control Protocol (RMCP) & IPMI Ruby implementation'
   s.description   = ''
   s.homepage      = 'http://github.com/simulacre/rmcp'
-  s.email         = 'rmcp@simulacre.org'
+  s.email         = 'rmcp-ipmi@simulacre.org'
   s.authors       = ['Caleb Crane']
   s.files         = Dir["lib/**/*.rb", "bin/*", "*.md", "LICENSE.txt"]
   s.require_paths = ["lib"]

@@ -1,14 +1,13 @@
-require "pry"
 module RMCP
   class Proto
     class Message
-      class Pong < Message
+      class Pong < Message::Base
         FORMAT = "NNCCN"
         type 0x40
 
-        # @api private
-        def decode(header, data, body)
-          super(header, data, body)
+
+        def initialize(body = "")
+          super(body)
           @iana, @oem, @entity_mask, @inter_mask, @res = body.unpack(FORMAT)
         end
 
