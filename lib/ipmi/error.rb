@@ -3,6 +3,7 @@ module IPMI
     class StandardError < ::StandardError
       include Error
     end
+    class Checksum < StandardError; end
     # Command could not be processed because command processing
     # resources are temporarily unavailable.
     class NodeBusy < StandardError; end

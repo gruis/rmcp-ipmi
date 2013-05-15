@@ -239,4 +239,5 @@ module IPMI
   }
 end
 require "ipmi/proto"
+require "ipmi/session"
 require "ipmi/message"

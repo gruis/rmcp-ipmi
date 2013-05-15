@@ -7,5 +7,5 @@ require "rmcp"
 require "rmcp/em/connection"
 
 EM.run do
-  EM.open_datagram_socket("0.0.0.0", 0, RMCP::EM::Connection, "192.168.90.23", 623)
+  EM.open_datagram_socket("0.0.0.0", 0, RMCP::EM::Connection, ARGV[0] || "192.168.90.23", 623)
 end
