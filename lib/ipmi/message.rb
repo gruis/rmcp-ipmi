@@ -1,16 +1,20 @@
 require "ipmi/session/header"
 require "ipmi/message/header"
+require "ipmi/message/open-session-request"
 
 module IPMI
   class Message
     class << self
       def decode(msg)
         session_header   = Session::Header.new.decode(msg)
-        header           = Header.new.decode(session_header.payload.body)
         # TODO instantiate based on cmd code
-        m                = new
+        if session_header.payload.type == :rmcpp_open_session_req
+          m  = OpenSessionRequest.new.decode(session_header.payload.body)
+        else
+          m        = new
+          m.header = Header.new.decode(session_header.payload.body)
+        end
         m.session_header = session_header
-        m.header         = header
         m
       end
     end # class << self
